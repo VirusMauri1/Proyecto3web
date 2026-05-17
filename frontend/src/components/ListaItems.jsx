@@ -1,0 +1,111 @@
+import { useState } from "react";
+import { useStorage } from "../context/StorageContext";
+import { ItemCard } from "./ItemCard";
+import { CATEGORIAS, ESTADOS } from "../utils/categorias";
+
+const labelStyle = {
+  display: "block", fontSize: 11, fontWeight: 700, color: "#555a7a",
+  marginBottom: 5, textTransform: "uppercase", letterSpacing: "0.06em",
+};
+
+export function ListaItems({ onEditar }) {
+  const { itemsFiltrados, itemsArchivados, filtros, setFiltros, restaurarItem, eliminarItem } = useStorage();
+  const [mostrarArchivados, setMostrarArchivados] = useState(false);
+
+  const hayFiltros = filtros.categoriaId || filtros.estado || filtros.busqueda;
+  const limpiar = () => setFiltros({ categoriaId: "", estado: "", busqueda: "" });
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      {/* Filtros */}
+      <div style={{
+        background: "#232638", border: "1px solid rgba(192,245,250,0.1)",
+        borderRadius: 12, padding: 18, display: "flex", gap: 12, flexWrap: "wrap", alignItems: "flex-end",
+      }}>
+        <div style={{ flex: "1 1 180px", minWidth: 140 }}>
+          <label style={labelStyle}> Buscar</label>
+          <input type="text" value={filtros.busqueda}
+            onChange={(e) => setFiltros((f) => ({ ...f, busqueda: e.target.value }))}
+            placeholder="Nombre o notas..." />
+        </div>
+        <div style={{ flex: "1 1 140px", minWidth: 120 }}>
+          <label style={labelStyle}>Categoría</label>
+          <select value={filtros.categoriaId}
+            onChange={(e) => setFiltros((f) => ({ ...f, categoriaId: e.target.value }))}>
+            <option value="">Todas</option>
+            {CATEGORIAS.map((c) => <option key={c.id} value={c.id}>{c.emoji} {c.nombre}</option>)}
+          </select>
+        </div>
+        <div style={{ flex: "1 1 120px", minWidth: 110 }}>
+          <label style={labelStyle}>Estado</label>
+          <select value={filtros.estado}
+            onChange={(e) => setFiltros((f) => ({ ...f, estado: e.target.value }))}>
+            <option value="">Todos</option>
+            {ESTADOS.map((e) => <option key={e.id} value={e.id}>{e.emoji} {e.nombre}</option>)}
+          </select>
+        </div>
+        {hayFiltros && (
+          <button onClick={limpiar} style={{
+            background: "rgba(248,113,113,0.1)", color: "#f87171",
+            border: "1px solid rgba(248,113,113,0.3)", padding: "9px 14px", fontSize: 12, fontWeight: 600,
+          }}>✕ Limpiar</button>
+        )}
+      </div>
+
+      <div style={{ fontSize: 13, color: "#555a7a" }}>
+        Mostrando <span style={{ color: "#C0F5FA", fontWeight: 700 }}>{itemsFiltrados.length}</span> estampas
+        {hayFiltros && " (filtradas)"}
+      </div>
+
+      {/* Grid */}
+      {itemsFiltrados.length === 0 ? (
+        <div style={{ textAlign: "center", padding: "50px 20px", color: "#555a7a" }}>
+          <div style={{ fontSize: 40, marginBottom: 12 }}>📭</div>
+          <p style={{ fontSize: 15, fontWeight: 600 }}>
+            {hayFiltros ? "No hay estampas con esos filtros" : "Aún no hay estampas"}
+          </p>
+        </div>
+      ) : (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(270px, 1fr))", gap: 14 }}>
+          {itemsFiltrados.map((item) => <ItemCard key={item.id} item={item} onEditar={onEditar} />)}
+        </div>
+      )}
+
+      {/* Archivados */}
+      {itemsArchivados.length > 0 && (
+        <div style={{ borderTop: "1px solid rgba(192,245,250,0.1)", paddingTop: 16 }}>
+          <button onClick={() => setMostrarArchivados(!mostrarArchivados)}
+            style={{ background: "transparent", color: "#555a7a",
+              border: "1px solid rgba(192,245,250,0.1)", padding: "7px 14px", fontSize: 12 }}>
+            Archivadas ({itemsArchivados.length}) {mostrarArchivados ? "▲" : "▼"}
+          </button>
+          {mostrarArchivados && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 12, opacity: 0.7 }}>
+              {itemsArchivados.map((item) => (
+                <div key={item.id} style={{
+                  background: "#232638", border: "1px solid rgba(192,245,250,0.1)",
+                  borderRadius: 8, padding: "10px 14px",
+                  display: "flex", justifyContent: "space-between", alignItems: "center",
+                }}>
+                  <span style={{ fontSize: 13, color: "#8b90b0" }}>📦 {item.nombre}</span>
+                  <div style={{ display: "flex", gap: 6 }}>
+                    <button onClick={() => restaurarItem(item.id)}
+                      style={{ background: "rgba(74,222,128,0.1)", color: "#4ade80",
+                        border: "1px solid rgba(74,222,128,0.3)", padding: "4px 10px", fontSize: 11 }}>
+                      Restaurar
+                    </button>
+                    <button onClick={() => eliminarItem(item.id)}
+                      style={{ background: "rgba(248,113,113,0.1)", color: "#f87171",
+                        border: "1px solid rgba(248,113,113,0.3)", padding: "4px 10px", fontSize: 11 }}>
+                      Eliminar
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
