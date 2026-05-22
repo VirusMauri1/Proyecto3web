@@ -1,16 +1,19 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { StorageProvider, useStorage } from "./context/StorageContext";
+import { ThemeProvider, useTheme } from "./context/ThemeContext";
 import { FormularioItem } from "./components/FormularioItem";
 import { ListaItems } from "./components/ListaItems";
 import { ModalEditar } from "./components/ModalEditar";
 
 const NAV_ITEMS = [
-  { id: "estampas", label: "Mis Estampas"},
-  { id: "agregar",  label: "Agregar"},
+  { id: "estampas", label: "Mis Estampas" },
+  { id: "agregar",  label: "Agregar" },
 ];
 
 function Navbar({ vista, setVista }) {
   const { items } = useStorage();
+  const { tema, toggleTema } = useTheme();
+
   const total   = items.filter((i) => i.activo).length;
   const pegadas = items.filter((i) => i.activo && i.estado === "pegada").length;
   const pct     = total > 0 ? Math.round((pegadas / total) * 100) : 0;
@@ -34,20 +37,35 @@ function Navbar({ vista, setVista }) {
                 border: vista === n.id ? "1px solid rgba(192,245,250,0.25)" : "1px solid transparent",
                 padding: "7px 14px", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer",
               }}>
-              {n.emoji} {n.label}
+              {n.label}
             </button>
           ))}
         </div>
 
-        <div style={{
-          display: "flex", alignItems: "center", gap: 8,
-          background: "#232638", padding: "5px 12px", borderRadius: 20,
-          border: "1px solid rgba(192,245,250,0.1)",
-        }}>
-          <div style={{ width: 72, height: 5, background: "#181925", borderRadius: 3, overflow: "hidden" }}>
-            <div style={{ width: `${pct}%`, height: "100%", background: "#C0F5FA", borderRadius: 3 }} />
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          {/* Botón toggle tema — commit 2 */}
+          <button
+            onClick={toggleTema}
+            title={`Cambiar a tema ${tema === "oscuro" ? "claro" : "oscuro"}`}
+            style={{
+              background: "rgba(192,245,250,0.1)",
+              color: "#C0F5FA",
+              border: "1px solid rgba(192,245,250,0.25)",
+              padding: "5px 10px", borderRadius: 20, fontSize: 14, cursor: "pointer",
+            }}>
+            {tema === "oscuro" ? "☀️" : "🌙"}
+          </button>
+
+          <div style={{
+            display: "flex", alignItems: "center", gap: 8,
+            background: "#232638", padding: "5px 12px", borderRadius: 20,
+            border: "1px solid rgba(192,245,250,0.1)",
+          }}>
+            <div style={{ width: 72, height: 5, background: "#181925", borderRadius: 3, overflow: "hidden" }}>
+              <div style={{ width: `${pct}%`, height: "100%", background: "#C0F5FA", borderRadius: 3 }} />
+            </div>
+            <span style={{ fontSize: 12, color: "#C0F5FA", fontWeight: 700, fontFamily: "monospace" }}>{pct}%</span>
           </div>
-          <span style={{ fontSize: 12, color: "#C0F5FA", fontWeight: 700, fontFamily: "monospace" }}>{pct}%</span>
         </div>
       </div>
     </nav>
@@ -85,8 +103,10 @@ function AppInner() {
 
 export default function App() {
   return (
-    <StorageProvider>
-      <AppInner />
-    </StorageProvider>
+    <ThemeProvider>
+      <StorageProvider>
+        <AppInner />
+      </StorageProvider>
+    </ThemeProvider>
   );
 }
