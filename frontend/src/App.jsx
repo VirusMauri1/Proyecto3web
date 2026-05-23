@@ -11,7 +11,7 @@ const NAV_ITEMS = [
 ];
 
 function Navbar({ vista, setVista }) {
-  const { items } = useStorage();
+  const { items, modo, setModo } = useStorage();
   const { tema, toggleTema } = useTheme();
 
   const total   = items.filter((i) => i.activo).length;
@@ -20,7 +20,8 @@ function Navbar({ vista, setVista }) {
 
   return (
     <nav style={{
-      background: "#1e2130", borderBottom: "1px solid rgba(192,245,250,0.1)",
+      background: "var(--color-bg-surface)",
+      borderBottom: "1px solid var(--color-border)",
       position: "sticky", top: 0, zIndex: 100,
     }}>
       <div style={{
@@ -32,9 +33,9 @@ function Navbar({ vista, setVista }) {
           {NAV_ITEMS.map((n) => (
             <button key={n.id} onClick={() => setVista(n.id)}
               style={{
-                background: vista === n.id ? "rgba(192,245,250,0.12)" : "transparent",
-                color: vista === n.id ? "#C0F5FA" : "#8b90b0",
-                border: vista === n.id ? "1px solid rgba(192,245,250,0.25)" : "1px solid transparent",
+                background: vista === n.id ? "var(--color-accent-dim)" : "transparent",
+                color: vista === n.id ? "var(--color-accent)" : "var(--color-text-muted)",
+                border: vista === n.id ? "1px solid var(--color-accent-border)" : "1px solid transparent",
                 padding: "7px 14px", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer",
               }}>
               {n.label}
@@ -43,14 +44,24 @@ function Navbar({ vista, setVista }) {
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          {/* Botón toggle tema — commit 2 */}
+          <button
+            onClick={() => setModo(modo === "local" ? "api" : "local")}
+            title={`Modo actual: ${modo}. Click para cambiar.`}
+            style={{
+              background: modo === "api" ? "rgba(96,165,250,0.15)" : "var(--color-accent-dim)",
+              color: modo === "api" ? "var(--color-info)" : "var(--color-accent)",
+              border: `1px solid ${modo === "api" ? "rgba(96,165,250,0.4)" : "var(--color-accent-border)"}`,
+              padding: "5px 12px", borderRadius: 20, fontSize: 11, fontWeight: 700, cursor: "pointer",
+            }}>
+            {modo === "api" ? "🌐 API" : "💾 Local"}
+          </button>
+
           <button
             onClick={toggleTema}
-            title={`Cambiar a tema ${tema === "oscuro" ? "claro" : "oscuro"}`}
             style={{
-              background: "rgba(192,245,250,0.1)",
-              color: "#C0F5FA",
-              border: "1px solid rgba(192,245,250,0.25)",
+              background: "var(--color-accent-dim)",
+              color: "var(--color-accent)",
+              border: "1px solid var(--color-accent-border)",
               padding: "5px 10px", borderRadius: 20, fontSize: 14, cursor: "pointer",
             }}>
             {tema === "oscuro" ? "☀️" : "🌙"}
@@ -58,13 +69,15 @@ function Navbar({ vista, setVista }) {
 
           <div style={{
             display: "flex", alignItems: "center", gap: 8,
-            background: "#232638", padding: "5px 12px", borderRadius: 20,
-            border: "1px solid rgba(192,245,250,0.1)",
+            background: "var(--color-bg-elevated)", padding: "5px 12px", borderRadius: 20,
+            border: "1px solid var(--color-border)",
           }}>
-            <div style={{ width: 72, height: 5, background: "#181925", borderRadius: 3, overflow: "hidden" }}>
-              <div style={{ width: `${pct}%`, height: "100%", background: "#C0F5FA", borderRadius: 3 }} />
+            <div style={{ width: 72, height: 5, background: "var(--color-bg)", borderRadius: 3, overflow: "hidden" }}>
+              <div style={{ width: `${pct}%`, height: "100%", background: "var(--color-accent)", borderRadius: 3 }} />
             </div>
-            <span style={{ fontSize: 12, color: "#C0F5FA", fontWeight: 700, fontFamily: "monospace" }}>{pct}%</span>
+            <span style={{ fontSize: 12, color: "var(--color-accent)", fontWeight: 700, fontFamily: "monospace" }}>
+              {pct}%
+            </span>
           </div>
         </div>
       </div>
@@ -77,14 +90,15 @@ function AppInner() {
   const [itemEditando, setItemEditando] = useState(null);
 
   return (
-    <div style={{ minHeight: "100vh", background: "#181925" }}>
+    <div style={{ minHeight: "100vh", background: "var(--color-bg)" }}>
       <Navbar vista={vista} setVista={setVista} />
 
       <main style={{ maxWidth: 1100, margin: "0 auto", padding: "28px 20px" }}>
         {vista === "agregar" ? (
           <div style={{
             maxWidth: 620, margin: "0 auto",
-            background: "#232638", border: "1px solid rgba(192,245,250,0.1)",
+            background: "var(--color-bg-surface)",
+            border: "1px solid var(--color-border)",
             borderRadius: 12, padding: 28,
           }}>
             <FormularioItem onGuardado={() => setVista("estampas")} />
