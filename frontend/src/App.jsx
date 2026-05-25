@@ -88,6 +88,31 @@ function Navbar({ vista, setVista }) {
 function AppInner() {
   const [vista, setVista] = useState("estampas");
   const [itemEditando, setItemEditando] = useState(null);
+  const { toggleTema } = useTheme();
+  const nombreInputRef = useRef(null);
+
+  const irAgregar = () => {
+    setVista("agregar");
+    setTimeout(() => {
+      if (nombreInputRef.current) nombreInputRef.current.focus();
+    }, 50);
+  };
+
+  useEffect(() => {
+    const handler = (e) => {
+      const tag = document.activeElement?.tagName;
+      const enInput = tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT";
+
+      if ((e.key === "t" || e.key === "T") && !enInput) toggleTema();
+
+      if (e.altKey && (e.key === "n" || e.key === "N")) { // Alt+N y no ctrl + n ya que abre nueva ventana
+        e.preventDefault();
+        irAgregar();
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [toggleTema]);
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--color-bg)" }}>
@@ -101,10 +126,34 @@ function AppInner() {
             border: "1px solid var(--color-border)",
             borderRadius: 12, padding: 28,
           }}>
-            <FormularioItem onGuardado={() => setVista("estampas")} />
+            <FormularioItem
+              onGuardado={() => setVista("estampas")}
+              nombreInputRef={nombreInputRef}
+            />
           </div>
         ) : (
-          <ListaItems onEditar={setItemEditando} />
+          <>
+            {/* se muestra el hint de atajo */}
+            <p style={{
+              fontSize: 12,
+              color: "var(--color-text-subtle)",
+              textAlign: "right",
+              marginBottom: 16,
+            }}>
+              Presiona{" "}
+              <kbd style={{
+                background: "var(--color-bg-elevated)",
+                border: "1px solid var(--color-border)",
+                borderRadius: 4,
+                padding: "1px 6px",
+                fontSize: 11,
+                fontFamily: "monospace",
+                color: "var(--color-text-muted)",
+              }}>Alt+N</kbd>
+              {" "}para agregar una nueva estampa
+            </p>
+            <ListaItems onEditar={setItemEditando} />
+          </>
         )}
       </main>
 
