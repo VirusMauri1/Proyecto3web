@@ -22,3 +22,13 @@ export function crearRegistro({ itemId, valor, notas }) {
     notas: notas || "",
   };
 }
+
+export function crearEventoProgreso({ itemId, delta }) {
+  return {
+    id: crypto.randomUUID(),
+    tipo: "progreso",
+    itemId,
+    delta,                               
+    fecha: new Date().toISOString().split("T")[0], 
+  };
+}
