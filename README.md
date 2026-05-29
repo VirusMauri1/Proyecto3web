@@ -67,3 +67,33 @@ npm run dev
 ![alt text](image-1.png)
 
 ![alt text](image-2.png)
+
+## Fase 3
+### usereducer
+El reducer que se usa esta dentro del archivo, itemsReducer.js. Esta funcion no hace fetch ni llama newdata. Las fechas se calculan en storagecontext.
+
+Esta tiene acciones como:
+`HIDRATAR`, `AGREGAR`, `ELIMINAR`, `CAMBIAR_ESTADO`, `FILTRAR`, `LIMPIAR_FILTROS`, `REGISTRAR_ACTIVIDAD`, `EDITAR`, `RESTAURAR`, `BORRAR`.
+
+### Graficas
+Estan dentro del archivo Graficas en el folder componentes, estos cuentan con sus propia barra de filtros. Los tres graficos trabajan leyendo los filtros .
+
+1. **Progreso de pegadas en el tiempo** (`LineChart`): sube cuando pego una estampa y baja cuando la despego, agrupado por día.
+2. **Distribución por categoría** (`PieChart`): cuántas estampas hay de cada selección.
+3. **Distribución por rareza** (`BarChart`): cuántas estampas tengo de cada rareza.
+
+
+### Optimización
+![alt text](Profiler1.png)
+Imagen antes de React.memo y react.memo
+
+![alt text](Profiler2.png)
+Imagen despues de React.memo y react.memo
+
+Análisis: Al escribir en el buscador, antes todas las ItemCard se renderizaban en cada tecla. Después de aplicar React.memo, useMemo y useCallback, solo se actualizan el buscador y la lista filtrada. Las tarjetas cuyos datos no cambian ya no se renderizan, lo que se observa en el Profiler porque aparecen como "Did not render".
+
+### mis tres decisiones tecnicas 
+
+1. **Filtros dentro del reducer:** los metí en el mismo estado que la lista para tener una sola fuente de verdad.
+2. **Reducer puro:** la fecha la calcula `StorageContext` y la pasa en el `payload`, así el reducer nunca llama a `new Date()`.
+3. **Gráfica de progreso:** `cambiarEstado` registra un evento `+1` o `-1` con la fecha cada vez que una estampa entra o sale de "pegada". La gráfica reconstruye la línea hacia atrás partiendo del total real de hoy.
